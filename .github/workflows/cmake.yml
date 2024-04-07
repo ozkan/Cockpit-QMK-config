@@ -34,9 +34,21 @@ jobs:
           qmk setup --yes --home .
       - name: Prepare qmk_firmware folder
         run: cp -R cockpit/ qmk_firmware/keyboards/
+
+      - name: Build cockpit-keyboard-pcb firmware 2040
+        working-directory: ./qmk_firmware
+        run: qmk compile -kb cockpit -km default -e CONVERT_TO=promicro_rp2040 
+
       - name: Build cockpit-keyboard-pcb firmware
         working-directory: ./qmk_firmware
         run: qmk compile -kb cockpit -km default 
+
+      - name: Archive 2040
+        uses: actions/upload-artifact@v2
+        with:
+          name: cockpit-keyboard-pcb
+          path: qmk_firmware/cockpit_default_promicro_rp2040.uf2
+
       - name: Archive
         uses: actions/upload-artifact@v2
         with:
