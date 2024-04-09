@@ -1,0 +1,31 @@
+name: Update submodule
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Update submodule daily
+
+  workflow_dispatch:  # Manually trigger workflow
+
+jobs:
+  update_submodule:
+    name: Update submodule
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: true 
+
+      - name: Update submodule
+        run: |
+          git submodule update --init --recursive --remote
+          git status
+
+      - name: Commit and push submodule changes
+        run: |
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+          git add .
+          git commit -m "Update submodule" || echo "No changes to commit"
+          git push
