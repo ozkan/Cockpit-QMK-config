@@ -81,17 +81,13 @@ bool process_detected_host_os_kb(os_variant_t detected_os) {
     return true;
 }
 
-#define MEDIA       MO(_MEDIA)
-#define NAV         MO(_NAV)
-#define SYM         MO(_SYM)
-#define NUM         MO(_NUM)
-#define ADJUST      MO(_ADJUST)
+#define ADJUST      MO(_ADJUST)  // Keep this one as it's used in the keymap
 
 // Layer keys
-#define ESC_MEDIA   LT(MEDIA, KC_ESC)
-#define SPC_NAV     LT(NAV, KC_SPC)
-#define ENT_SYM     LT(SYM, KC_ENT)
-#define BSPC_NUM    LT(NUM, KC_BSPC)
+#define ESC_MEDIA   LT(_MEDIA, KC_ESC)
+#define SPC_NAV     LT(_NAV, KC_SPC)
+#define ENT_SYM     LT(_SYM, KC_ENT)
+#define BSPC_NUM    LT(_NUM, KC_BSPC)
 
 
 // Left-hand home row mods for Mac (CAGS)
