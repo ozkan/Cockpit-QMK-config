@@ -32,6 +32,17 @@ enum cockpit_layer {
 bool is_mac_mode = false;  // Default to Windows mode
 bool manual_os_override = false;  // Track if user manually set the OS
 
+// Keyboard initialization
+void keyboard_post_init_user(void) {
+    // Start in Windows mode by default
+    is_mac_mode = false;
+    manual_os_override = false;
+    layer_clear();
+    layer_on(_WIN_MODE);
+    rgblight_enable();
+    rgblight_sethsv(WIN_RED, WIN_GREEN, WIN_BLUE);
+}
+
 // OS Detection callback
 bool process_detected_host_os_kb(os_variant_t detected_os) {
     if (!process_detected_host_os_user(detected_os)) {
@@ -60,7 +71,10 @@ bool process_detected_host_os_kb(os_variant_t detected_os) {
                 }
                 break;
             case OS_UNSURE:
-                // Keep current state if unsure
+                // Keep current state if unsure, but ensure we're in a valid layer
+                if (!layer_state) {
+                    layer_on(_WIN_MODE);  // Default to Windows mode if no layer is active
+                }
                 break;
         }
     }
