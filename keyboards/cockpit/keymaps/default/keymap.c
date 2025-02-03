@@ -1,17 +1,22 @@
 #include QMK_KEYBOARD_H
 
-// Add these definitions at the top with other defines
-#define GAMING_RED    128
-#define GAMING_GREEN  0
-#define GAMING_BLUE   0
+// RGB configuration
+#define RGBLIGHT_LAYERS
+#define RGBLIGHT_EFFECT_BREATHING
+#define RGBLIGHT_DEFAULT_MODE RGBLIGHT_MODE_BREATHING
 
-#define MAC_RED       0
-#define MAC_GREEN     0
-#define MAC_BLUE      128
+// RGB colors (using HSV values)
+#define GAMING_HUE     0      // Red
+#define GAMING_SAT     255
+#define GAMING_VAL     150
 
-#define WIN_RED       0
-#define WIN_GREEN     128
-#define WIN_BLUE      0
+#define MAC_HUE        170    // Blue
+#define MAC_SAT        255
+#define MAC_VAL        150
+
+#define WIN_HUE        85     // Green
+#define WIN_SAT        255
+#define WIN_VAL        150
 
 // OS Detection configuration
 #define OS_DETECTION_DEBOUNCE 250  // 250ms debounce time
@@ -35,13 +40,16 @@ bool manual_os_override = false;  // Track if user manually set the OS
 
 // Keyboard initialization
 void keyboard_post_init_user(void) {
+    // Initialize RGB
+    rgblight_enable();
+    rgblight_mode(RGBLIGHT_MODE_BREATHING);
+    rgblight_setrgb(0, 150, 0);  // Start with green for Windows mode
+
     // Start in Windows mode by default
     is_mac_mode = false;
     manual_os_override = false;
     layer_clear();
     layer_on(_WIN_MODE);  // Enable Windows base layer
-    rgblight_enable();
-    rgblight_sethsv(WIN_RED, WIN_GREEN, WIN_BLUE);
 }
 
 // OS Detection callback
@@ -58,7 +66,8 @@ bool process_detected_host_os_kb(os_variant_t detected_os) {
                 if (!is_mac_mode) {
                     is_mac_mode = true;
                     layer_move(_MAC_MODE);  // Switch to Mac base layer
-                    rgblight_sethsv(MAC_RED, MAC_GREEN, MAC_BLUE);
+                    rgblight_enable();
+                    rgblight_sethsv(MAC_HUE, MAC_SAT, MAC_VAL);
                 }
                 break;
             case OS_WINDOWS:
@@ -66,13 +75,16 @@ bool process_detected_host_os_kb(os_variant_t detected_os) {
                 if (is_mac_mode) {
                     is_mac_mode = false;
                     layer_move(_WIN_MODE);  // Switch to Windows base layer
-                    rgblight_sethsv(WIN_RED, WIN_GREEN, WIN_BLUE);
+                    rgblight_enable();
+                    rgblight_sethsv(WIN_HUE, WIN_SAT, WIN_VAL);
                 }
                 break;
             case OS_UNSURE:
                 // Keep current state if unsure, but ensure we're in a valid layer
                 if (!layer_state) {
                     layer_on(_WIN_MODE);  // Default to Windows mode if no layer is active
+                    rgblight_enable();
+                    rgblight_sethsv(WIN_HUE, WIN_SAT, WIN_VAL);
                 }
                 break;
         }
@@ -447,7 +459,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 is_mac_mode = true;
                 manual_os_override = true;  // Set manual override
                 layer_move(_MAC_MODE);  // Switch to Mac base layer
-                rgblight_sethsv(MAC_RED, MAC_GREEN, MAC_BLUE);  // Blue color for Mac
+                rgblight_enable();
+                rgblight_sethsv(MAC_HUE, MAC_SAT, MAC_VAL);
             }
             return false;
         case WIN_MODE:
@@ -455,7 +468,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 is_mac_mode = false;
                 manual_os_override = true;  // Set manual override
                 layer_move(_WIN_MODE);  // Switch to Windows base layer
-                rgblight_sethsv(WIN_RED, WIN_GREEN, WIN_BLUE);  // Green color for Windows
+                rgblight_enable();
+                rgblight_sethsv(WIN_HUE, WIN_SAT, WIN_VAL);
             }
             return false;
         case GAME_MODE:
@@ -463,7 +477,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 is_mac_mode = false;  // Use Windows-style shortcuts in gaming mode
                 manual_os_override = true;  // Set manual override
                 layer_move(_GAME_MODE);  // Switch to Gaming base layer
-                rgblight_sethsv(GAMING_RED, GAMING_GREEN, GAMING_BLUE);  // Red color for Gaming
+                rgblight_enable();
+                rgblight_sethsv(GAMING_HUE, GAMING_SAT, GAMING_VAL);
             }
             return false;
         case KC_MY_COPY:
