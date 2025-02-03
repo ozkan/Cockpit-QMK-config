@@ -13,6 +13,10 @@
 #define WIN_GREEN     128
 #define WIN_BLUE      0
 
+// OS Detection configuration
+#define OS_DETECTION_DEBOUNCE 250  // 250ms debounce time
+#define OS_DETECTION_SINGLE_REPORT  // Only report once when stable
+
 enum cockpit_layer {
     _MEDIA,
     _NAV,
@@ -23,6 +27,45 @@ enum cockpit_layer {
     _WIN_MODE,  // New layer to track OS mode
     _GAME_MODE  // Gaming mode with QWERTY layout
 };
+
+// OS detection and manual override state
+bool is_mac_mode = false;  // Default to Windows mode
+bool manual_os_override = false;  // Track if user manually set the OS
+
+// OS Detection callback
+bool process_detected_host_os_kb(os_variant_t detected_os) {
+    if (!process_detected_host_os_user(detected_os)) {
+        return false;
+    }
+    
+    // Only switch if no manual override
+    if (!manual_os_override) {
+        switch (detected_os) {
+            case OS_MACOS:
+            case OS_IOS:
+                if (!is_mac_mode) {
+                    is_mac_mode = true;
+                    layer_clear();
+                    layer_on(_MAC_MODE);
+                    rgblight_sethsv(MAC_RED, MAC_GREEN, MAC_BLUE);
+                }
+                break;
+            case OS_WINDOWS:
+            case OS_LINUX:
+                if (is_mac_mode) {
+                    is_mac_mode = false;
+                    layer_clear();
+                    layer_on(_WIN_MODE);
+                    rgblight_sethsv(WIN_RED, WIN_GREEN, WIN_BLUE);
+                }
+                break;
+            case OS_UNSURE:
+                // Keep current state if unsure
+                break;
+        }
+    }
+    return true;
+}
 
 #define MEDIA       MO(_MEDIA)
 #define NAV         MO(_NAV)
@@ -64,9 +107,6 @@ enum cockpit_layer {
 #define WIN_ALT_I   LALT_T(KC_I)
 #define WIN_GUI_O   RGUI_T(KC_O)
 
-
-// OS detection
-bool is_mac_mode = false;  // Default to Windows mode
 
 // Clipboard keys for both OS
 #define MAC_COPY LGUI(KC_C)
@@ -402,6 +442,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case MAC_MODE:
             if (record->event.pressed) {
                 is_mac_mode = true;
+                manual_os_override = true;  // Set manual override
                 layer_clear();  // Clear all layers
                 layer_on(_MAC_MODE);  // Enable Mac layer
                 rgblight_sethsv(MAC_RED, MAC_GREEN, MAC_BLUE);  // Blue color for Mac
@@ -410,6 +451,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case WIN_MODE:
             if (record->event.pressed) {
                 is_mac_mode = false;
+                manual_os_override = true;  // Set manual override
                 layer_clear();  // Clear all layers
                 layer_on(_WIN_MODE);  // Enable Windows layer
                 rgblight_sethsv(WIN_RED, WIN_GREEN, WIN_BLUE);  // Green color for Windows
@@ -418,6 +460,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case GAME_MODE:
             if (record->event.pressed) {
                 is_mac_mode = false;  // Use Windows-style shortcuts in gaming mode
+                manual_os_override = true;  // Set manual override
                 layer_clear();  // Clear all layers
                 layer_on(_GAME_MODE);  // Enable Gaming layer
                 rgblight_sethsv(GAMING_RED, GAMING_GREEN, GAMING_BLUE);  // Red color for Gaming
