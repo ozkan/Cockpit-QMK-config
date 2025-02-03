@@ -256,7 +256,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_NAV] = LAYOUT_cockpit(
     XXXXXXX,  _______,  _______,  _______,  _______,  _______,       KC_AGAIN, KC_MY_PASTE, KC_MY_COPY, KC_MY_CUT, KC_UNDO,  XXXXXXX,
     XXXXXXX,  KC_LCTL,  KC_LALT,  KC_LGUI,  KC_LSFT,  _______,       KC_CAPS,  KC_LEFT,    KC_DOWN,    KC_UP,     KC_RGHT,  XXXXXXX,
-    XXXXXXX,  _______,  _______,  _______,  _______,  _______,       CAPSWRD,  KC_HOME,    KC_PGDN,    KC_PGUP,   KC_END,   XXXXXXX,
+    XXXXXXX,  _______,  _______,  _______,  _______,  _______,       QK_CAPS_WORD_TOGGLE,  KC_HOME,    KC_PGDN,    KC_PGUP,   KC_END,   XXXXXXX,
                                                     _______,  _______,
                                _______,  _______,  _______,                     KC_ENT,   KC_BSPC,   KC_DEL,    
                                                                     _______,
